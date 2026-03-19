@@ -1,0 +1,179 @@
+﻿@model PopZebra.Models.PaginatedList<PopZebra.Models.AboutSection>
+@{
+    ViewData["Title"] = "About Module";
+    Layout = "_Layout";
+    int serialStart = ((Model.PageIndex - 1) * Model.PageSize) + 1;
+    int sno = serialStart;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="fw-bold mb-1 pz-section-title">About Sections</h5>
+      
+    </div>
+    <a asp-action="Create" class="btn btn-primary px-4">
+        <i class="bi bi-plus-lg me-1"></i>Add New
+    </a>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-info-circle display-4 text-muted mb-3 d-block"></i>
+            <h6 class="text-muted">No about sections found</h6>
+            <a asp-action="Create" class="btn btn-primary mt-2">
+                Add First Section
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-muted small ">
+        Total Record@(Model.TotalCount == 1 ? "" : "s") : <span class="ms-1">@Model.TotalCount</span>
+        
+    </p>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:60px">S.No</th>
+                            <th>Content Preview</th>
+                            <th style="display:none;">Icons</th>
+                            <th>Status</th>
+                            <th>Created On</th>
+                            <th>Updated On</th>
+                            <th style="width:160px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="text-muted small align-middle fw-semibold">
+                                    @sno
+                                </td>
+                                <td class="align-middle">
+                                    <div style="max-width:280px;overflow:hidden;
+                                                 text-overflow:ellipsis;white-space:nowrap;
+                                                 font-size:.88rem;">
+                                        @(item.Content.Length > 100
+                                                                        ? item.Content[..100] + "..."
+                                                                        : item.Content)
+                                    </div>
+                                </td>
+                                <td class="align-middle" style="display:none;">
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        @foreach (var icon in item.Icons
+                                                                        .OrderBy(i => i.SortOrder).Take(5))
+                                        {
+                                            <img src="@icon.IconPath"
+                                                 style="width:28px;height:28px;
+                                                                    object-fit:cover;
+                                                                    border-radius:6px;
+                                                                    border:1px solid #eee;"
+                                                 title="@icon.Title"
+                                                 alt="@icon.Title" />
+                                        }
+                                    </div>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input status-toggle"
+                                               type="checkbox"
+                                               role="switch"
+                                               data-id="@item.Id"
+                                               @(item.IsActive ? "checked" : "")
+                                               style="cursor:pointer;
+                                                              width:2.5em;height:1.3em;" />
+                                        <label class=" ms-1 form-check-label small
+                                                               status-label-@item.Id"
+                                               style="color:@(item.IsActive
+                                                                                                     ? "#0e7a42" : "#c0392b")">
+                                            @(item.IsActive ? "Active" : "Inactive")
+                                        </label>
+                                    </div>
+                                </td>
+                                <td class="text-muted small align-middle">
+                                    @item.CreatedOn.ToString("dd MMM yyyy")
+                                </td>
+                                <td class="text-muted small align-middle">
+                                    @item.UpdatedOn.ToString("dd MMM yyyy")
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex gap-1">
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            sno++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Pagination", new PopZebra.Models.PaginationViewModel
+    {
+        PageIndex = Model.PageIndex,
+        TotalPages = Model.TotalPages,
+        TotalCount = Model.TotalCount,
+        PageSize = Model.PageSize,
+        Url = p => Url.Action("Index", "About", new { page = p })!
+    })
+}
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.status-toggle').forEach(function (toggle) {
+            toggle.addEventListener('change', async function () {
+                var id       = this.dataset.id;
+                var label    = document.querySelector('.status-label-' + id);
+                var checkbox = this;
+
+                try {
+                    var res  = await fetch('/About/ToggleStatus', {
+                        method:  'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body:    JSON.stringify(parseInt(id))
+                    });
+                    var data = await res.json();
+
+                    if (data.success) {
+                        label.textContent = data.label;
+                        label.style.color = data.isActive
+                            ? '#0e7a42' : '#c0392b';
+                    } else {
+                        // Revert toggle on failure
+                        checkbox.checked = !checkbox.checked;
+                        alert(data.message || 'Failed to update status.');
+                    }
+                } catch (e) {
+                    checkbox.checked = !checkbox.checked;
+                    alert('Network error. Please try again.');
+                }
+            });
+        });
+    </script>
+}

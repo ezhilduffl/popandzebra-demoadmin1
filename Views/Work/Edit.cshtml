@@ -1,0 +1,545 @@
+﻿@* @model PopZebra.Models.WorkItemViewModel
+@{
+    ViewData["Title"] = "Work - Edit";
+    Layout = "_Layout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pencil me-2"></i>Edit Work Item
+            </div>
+            <div class="card-body">
+
+                <form method="post"
+                      asp-action="Edit"
+                      asp-route-id="@Model.Id"
+                      enctype="multipart/form-data"
+                      id="workEditForm"
+                      novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label">
+                            Title <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Title"
+                               class="form-control"
+                               placeholder="Enter work item title" />
+                        <span asp-validation-for="Title"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- Link URL -->
+                    <div class="mb-4">
+                        <label asp-for="LinkUrl" class="form-label">
+                            Link URL <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-link-45deg"></i>
+                            </span>
+                            <input asp-for="LinkUrl"
+                                   class="form-control"
+                                   placeholder="https://..." />
+                        </div>
+                        <span asp-validation-for="LinkUrl"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- Display Order -->
+                    <div class="mb-4">
+                        <label asp-for="DisplayOrder" class="form-label">
+                            Display Order <span class="text-danger">*</span>
+                        </label>
+                        <select name="DisplayOrder" class="form-select">
+                            <option value="">-- Select display order --</option>
+                            @foreach (var order in Model.AvailableOrders)
+                            {
+                                if (Model.DisplayOrder == order)
+                                {
+                                    <option value="@order" selected>
+                                        @order (current)
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@order">@order</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="DisplayOrder"
+                              class="text-danger small"></span>
+                        <div id="orderError" class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Image
+                            <small class="text-muted fw-normal">
+                                (Upload new to replace)
+                            </small>
+                        </label>
+                        @if (!string.IsNullOrEmpty(Model.ExistingImagePath))
+                        {
+                            <div class="mb-2">
+                                <img src="@Model.ExistingImagePath"
+                                     style="height:120px;object-fit:cover;
+                                                border-radius:8px;display:block;"
+                                     alt="Current image" />
+                                <small class="text-muted">Current image</small>
+                            </div>
+                        }
+                        <div class="img-preview-box"
+                             id="imagePreviewBox"
+                             onclick="document.getElementById('imageFileInput').click()">
+                            <div class="placeholder-text">
+                                <i class="bi bi-cloud-upload fs-3 d-block mb-2 text-muted"></i>
+                                Click to upload new image<br />
+                                <small>JPG, PNG, GIF — max 3MB</small>
+                            </div>
+                        </div>
+                        <input type="file"
+                               id="imageFileInput"
+                               name="ImageFile"
+                               accept=".jpg,.jpeg,.png,.gif"
+                               class="d-none"
+                               onchange="previewImage(this)" />
+                        <div id="imageFileError" class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Timestamps -->
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">
+                                Created On
+                            </label>
+                            <input type="text"
+                                   class="form-control form-control-sm bg-light"
+                                   value="@Model.CreatedOn?.ToString("dd MMM yyyy")"
+                                   readonly />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">
+                                Updated On
+                            </label>
+                            <input type="text"
+                                   class="form-control form-control-sm bg-light"
+                                   value="@Model.UpdatedOn?.ToString("dd MMM yyyy")"
+                                   readonly />
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i>Update
+                        </button>
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var maxSize     = 3 * 1024 * 1024;
+        var allowedExts = new RegExp('\\.(jpg|jpeg|png|gif)$', 'i');
+
+        function previewImage(input) {
+            var file  = input.files[0];
+            var box   = document.getElementById('imagePreviewBox');
+            var errEl = document.getElementById('imageFileError');
+            errEl.textContent = '';
+
+            if (!file) return;
+
+            if (!allowedExts.test(file.name)) {
+                errEl.textContent = 'Only JPG, PNG, and GIF files are allowed.';
+                input.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                errEl.textContent = 'File size must not exceed 3 MB.';
+                input.value = '';
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                box.innerHTML =
+                    '<img src="' + e.target.result + '" ' +
+                    'style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('workEditForm').addEventListener('submit', function (e) {
+            var valid = true;
+            var order = document.querySelector('select[name="DisplayOrder"]').value;
+            if (!order) {
+                document.getElementById('orderError').textContent =
+                    'Please select a display order.';
+                valid = false;
+            } else {
+                document.getElementById('orderError').textContent = '';
+            }
+            if (!valid) e.preventDefault();
+        });
+    </script>
+} *@
+
+
+
+@model PopZebra.Models.WorkItemViewModel
+@{
+    ViewData["Title"] = "Work - Edit";
+    Layout = "_Layout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pencil me-2"></i>Edit Work Item
+            </div>
+            <div class="card-body">
+
+                <form method="post"
+                      asp-action="Edit"
+                      asp-route-id="@Model.Id"
+                      enctype="multipart/form-data"
+                      id="workEditForm"
+                      novalidate>
+                    @Html.AntiForgeryToken()
+
+                    @* <%-- Hidden field to pass replace decision --%> *@
+                    <input type="hidden"
+                           id="replaceOrderInput"
+                           name="replaceOrder"
+                           value="false" />
+
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label">
+                            Title <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Title"
+                               class="form-control"
+                               placeholder="Enter work item title" />
+                        <span asp-validation-for="Title"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- Link URL -->
+                    <div class="mb-4">
+                        <label asp-for="LinkUrl" class="form-label">
+                            Link URL <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-link-45deg"></i>
+                            </span>
+                            <input asp-for="LinkUrl"
+                                   class="form-control"
+                                   placeholder="https://..." />
+                        </div>
+                        <span asp-validation-for="LinkUrl"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- Display Order — ALL 10 shown -->
+                    <div class="mb-4">
+                        <label asp-for="DisplayOrder" class="form-label">
+                            Display Order <span class="text-danger">*</span>
+                        </label>
+                        <select name="DisplayOrder"
+                                id="displayOrderSelect"
+                                class="form-select">
+                            <option value="">-- Select display order --</option>
+                            @foreach (var order in Model.AvailableOrders)
+                            {
+                                if (Model.DisplayOrder == order)
+                                {
+                                    <option value="@order" selected>
+                                        @order (current)
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@order">@order</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="DisplayOrder"
+                              class="text-danger small"></span>
+                        <div id="orderError"
+                             class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Image
+                            <small class="text-muted fw-normal">
+                                (Upload new to replace)
+                            </small>
+                        </label>
+                        @if (!string.IsNullOrEmpty(Model.ExistingImagePath))
+                        {
+                            <div class="mb-2">
+                                <img src="@Model.ExistingImagePath"
+                                     style="height:120px;object-fit:cover;
+                                                border-radius:8px;display:block;"
+                                     alt="Current image" />
+                                <small class="text-muted">Current image</small>
+                            </div>
+                        }
+                        <div class="img-preview-box"
+                             id="imagePreviewBox"
+                             onclick="document.getElementById('imageFileInput').click()">
+                            <div class="placeholder-text">
+                                <i class="bi bi-cloud-upload fs-3 d-block mb-2 text-muted"></i>
+                                Click to upload new image<br />
+                                <small>JPG, PNG, GIF — max 3MB</small>
+                            </div>
+                        </div>
+                        <input type="file"
+                               id="imageFileInput"
+                               name="ImageFile"
+                               accept=".jpg,.jpeg,.png,.gif"
+                               class="d-none"
+                               onchange="previewImage(this)" />
+                        <div id="imageFileError"
+                             class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Timestamps -->
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">
+                                Created On
+                            </label>
+                            <input type="text"
+                                   class="form-control form-control-sm bg-light"
+                                   value="@Model.CreatedOn?.ToString("dd MMM yyyy, hh:mm tt")"
+                                   readonly />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">
+                                Updated On
+                            </label>
+                            <input type="text"
+                                   class="form-control form-control-sm bg-light"
+                                   value="@Model.UpdatedOn?.ToString("dd MMM yyyy, hh:mm tt")"
+                                   readonly />
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4"
+                                id="updateBtn">
+                            <i class="bi bi-check-circle me-1"></i>Update
+                        </button>
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Replace Order Confirmation Popup ──────────────── -->
+<div id="replacePopupOverlay"
+     style="display:none;position:fixed;inset:0;z-index:1050;
+            background:rgba(0,0,0,.45);align-items:center;
+            justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:16px;padding:36px 32px;
+                max-width:440px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.2);
+                position:relative;">
+
+        <!-- Warning icon -->
+        <div style="width:60px;height:60px;background:#fef3c7;border-radius:50%;
+                    display:flex;align-items:center;justify-content:center;
+                    margin:0 auto 20px;">
+            <i class="bi bi-exclamation-triangle-fill"
+               style="font-size:1.6rem;color:#d97706;"></i>
+        </div>
+
+        <h5 class="fw-bold text-center mb-2">Order Already Taken</h5>
+
+        <p class="text-muted text-center small mb-4"
+           id="popupMessage">
+        </p>
+
+        <div class="d-flex gap-2 justify-content-center">
+
+            <!-- Back button — revert to current order -->
+            <button type="button"
+                    class="btn btn-outline-secondary px-4"
+                    id="popupBackBtn"
+                    onclick="cancelReplace()">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </button>
+
+            <!-- Replace button — swap orders and submit -->
+            <button type="button"
+                    class="btn btn-warning px-4"
+                    id="popupReplaceBtn"
+                    onclick="confirmReplace()">
+                <i class="bi bi-arrow-left-right me-1"></i>
+                Replace &amp; Swap
+            </button>
+
+        </div>
+
+        <p class="text-muted text-center mt-3 mb-0"
+           style="font-size:.78rem;">
+            <i class="bi bi-info-circle me-1"></i>
+            Replacing will swap the display order between both items.
+        </p>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Taken orders data from server ─────────────────────
+        var takenOrders    = @Html.Raw(ViewBag.TakenOrdersJson ?? "[]");
+        var currentOrder   = @Model.DisplayOrder;
+        var selectedOrder  = currentOrder;
+        var maxSize        = 3 * 1024 * 1024;
+        var allowedExts    = new RegExp('\\.(jpg|jpeg|png|gif)$', 'i');
+
+        // ── On display order change ───────────────────────────
+        document.getElementById('displayOrderSelect')
+            .addEventListener('change', function () {
+            selectedOrder = parseInt(this.value);
+            document.getElementById('orderError').textContent = '';
+        });
+
+        // ── Image preview ─────────────────────────────────────
+        function previewImage(input) {
+            var file  = input.files[0];
+            var box   = document.getElementById('imagePreviewBox');
+            var errEl = document.getElementById('imageFileError');
+            errEl.textContent = '';
+
+            if (!file) return;
+
+            if (!allowedExts.test(file.name)) {
+                errEl.textContent = 'Only JPG, PNG, and GIF files are allowed.';
+                input.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                errEl.textContent = 'File size must not exceed 3 MB.';
+                input.value = '';
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                box.innerHTML =
+                    '<img src="' + e.target.result + '" ' +
+                    'style="width:100%;height:100%;' +
+                    'object-fit:cover;border-radius:8px;" />';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ── Form submit handler ───────────────────────────────
+        document.getElementById('workEditForm')
+            .addEventListener('submit', function (e) {
+            var valid = true;
+
+            // Validate display order selected
+            var orderVal = document.querySelector(
+                'select[name="DisplayOrder"]').value;
+
+            if (!orderVal) {
+                document.getElementById('orderError').textContent =
+                    'Please select a display order.';
+                valid = false;
+                e.preventDefault();
+                return;
+            }
+
+            var chosenOrder = parseInt(orderVal);
+
+            // ── Check if chosen order is taken by another item ─
+            var conflict = null;
+            for (var i = 0; i < takenOrders.length; i++) {
+                if (takenOrders[i].order === chosenOrder) {
+                    conflict = takenOrders[i];
+                    break;
+                }
+            }
+
+            if (conflict) {
+                e.preventDefault();
+                // ── Show popup with conflict info ─────────────
+                document.getElementById('popupMessage').innerHTML =
+                    'Display order <strong>' + chosenOrder +
+                    '</strong> is currently assigned to:<br>' +
+                    '<strong>"' + conflict.title + '"</strong><br><br>' +
+                    'Do you want to replace it? Their order will be ' +
+                    'swapped to your current order ' +
+                    '<strong>' + currentOrder + '</strong>.';
+
+                var overlay = document.getElementById('replacePopupOverlay');
+                overlay.style.display = 'flex';
+            } else {
+                // No conflict — set replaceOrder false and submit
+                document.getElementById('replaceOrderInput').value = 'false';
+            }
+        });
+
+        // ── User clicks Replace & Swap ────────────────────────
+        function confirmReplace() {
+            document.getElementById('replaceOrderInput').value = 'true';
+            document.getElementById('replacePopupOverlay').style.display = 'none';
+            document.getElementById('workEditForm').submit();
+        }
+
+        // ── User clicks Back — revert to current order ────────
+        function cancelReplace() {
+            document.getElementById('replacePopupOverlay').style.display = 'none';
+
+            // Reset dropdown to current order
+            var select = document.getElementById('displayOrderSelect');
+            for (var i = 0; i < select.options.length; i++) {
+                if (parseInt(select.options[i].value) === currentOrder) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+
+            selectedOrder = currentOrder;
+        }
+    </script>
+}
+
+

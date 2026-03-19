@@ -1,0 +1,127 @@
+﻿@model PopZebra.Models.PaginatedList<PopZebra.Models.ShopItem>
+@{
+    ViewData["Title"] = "Shop Module";
+    Layout = "_Layout";
+    int serialStart = ((Model.PageIndex - 1) * Model.PageSize) + 1;
+    int sno = serialStart;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="fw-bold mb-1 pz-section-title">Shop Items</h5>
+       
+    </div>
+    <a asp-action="Create" class="btn btn-primary px-4">
+        <i class="bi bi-plus-lg me-1"></i>Add New
+    </a>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-bag display-4 text-muted mb-3 d-block"></i>
+            <h6 class="text-muted">No shop items found</h6>
+            <a asp-action="Create" class="btn btn-primary mt-2">
+                Add First Item
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-muted small ">
+        Total Record@(Model.TotalCount == 1 ? "" : "s") : <span class="ms-1">@Model.TotalCount </span>
+        
+    </p>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:60px">S.No</th>
+                            <th style="width:90px;display:none;">Image</th>
+                            <th>Content</th>
+                            <th style="">History</th>
+                            <th>Created On</th>
+                            <th>Updated On</th>
+                            <th style="width:160px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="text-muted small align-middle fw-semibold">
+                                    @sno
+                                </td>
+                                <td class="align-middle d-none">
+                                    <img src="@item.ImagePath"
+                                         class="table-img" alt="Shop item" />
+                                </td>
+                                <td class="align-middle">
+                                    <div style="max-width:300px;overflow:hidden;
+                                                 text-overflow:ellipsis;white-space:nowrap;
+                                                 font-size:.88rem;">
+                                        @(item.Content.Length > 100
+                                                                        ? item.Content[..100] + "..."
+                                                                        : item.Content)
+                                    </div>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge rounded-pill"
+                                          style="background:#f0fdf4;color:#166534;
+                                                         font-size:.72rem;
+                                                         border:1px solid #bbf7d0;">
+                                        <i class="bi bi-clock-history me-1"></i>
+                                        @item.History.Count
+                                        version@(item.History.Count == 1 ? "" : "s")
+                                    </span>
+                                </td>
+                                <td class="text-muted small align-middle">
+                                    @item.CreatedOn.ToString("dd MMM yyyy")
+                                </td>
+                                <td class="text-muted small align-middle">
+                                    @item.UpdatedOn.ToString("dd MMM yyyy")
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex gap-1">
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Details & History">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            sno++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Pagination", new PopZebra.Models.PaginationViewModel
+    {
+        PageIndex = Model.PageIndex,
+        TotalPages = Model.TotalPages,
+        TotalCount = Model.TotalCount,
+        PageSize = Model.PageSize,
+        Url = p => Url.Action("Index", "Shop", new { page = p })!
+    })
+}

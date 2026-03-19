@@ -1,0 +1,440 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Pop and Zebra Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --brand-dark: #1a1a2e;
+                --brand-accent: #002fba;
+            --sidebar-text: #a8b2c8;
+        }
+
+        body {
+            background: #f4f6fb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        #sidebar {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            background: var(--brand-dark);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform .3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+            .sidebar-brand span {
+                --brand-accent:#fff;
+                color: var(--brand-accent);
+                font-weight: 800;
+                font-size: 1.3rem;
+            }
+
+            .sidebar-brand small {
+                color: var(--sidebar-text);
+                font-size: .75rem;
+                display: block;
+            }
+
+        .nav-section-title {
+            padding: .6rem 1.25rem .2rem;
+            font-size: .67rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: #4a5578;
+            margin-top: .4rem;
+        }
+
+        #sidebar .nav-link {
+            color: var(--sidebar-text);
+            padding: .6rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            font-size: .9rem;
+            transition: all .2s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+        }
+
+            #sidebar .nav-link:hover,
+            #sidebar .nav-link.active {
+                    background: #f4f6fb;
+                color: #000;
+                border-left-color: var(--brand-accent);
+                    border-top-right-radius: 50px;
+                    border-bottom-right-radius: 50px;
+            }
+
+            #sidebar .nav-link i {
+                font-size: 1rem;
+                width: 20px;
+                text-align: center;
+            }
+
+        #main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-navbar {
+            background: #fff;
+            border-bottom: 1px solid #e8ecf4;
+            padding: .75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .page-heading {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 1px 8px rgba(0,0,0,.07);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid #f0f2f8;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: .85rem;
+            color: #444;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border-color: #dde2ef;
+            font-size: .9rem;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: var(--brand-accent);
+                box-shadow: 0 0 0 .2rem rgba(233,69,96,.15);
+            }
+
+        .btn-primary {
+            background: var(--brand-accent);
+            border-color: var(--brand-accent);
+        }
+
+            .btn-primary:hover {
+                background: #fff;
+                    border-color: var(--brand-accent);
+                    color: var(--brand-accent);
+            }
+            .pz-section-title{
+                color:var(--brand-accent);
+            }
+
+        .stat-card {
+            border-radius: 12px;
+            padding: 1.25rem;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card .stat-icon {
+                font-size: 2.5rem;
+                opacity: .2;
+                position: absolute;
+                right: 1rem;
+                top: .75rem;
+            }
+
+            .stat-card .stat-value {
+                font-size: 2rem;
+                font-weight: 800;
+            }
+
+            .stat-card .stat-label {
+                font-size: .8rem;
+                opacity: .85;
+            }
+
+        .stat-bg-1 {
+            background: linear-gradient(135deg,#667eea,#764ba2);
+        }
+
+        .stat-bg-2 {
+            background: linear-gradient(135deg,#f093fb,#f5576c);
+        }
+
+        .stat-bg-3 {
+            background: linear-gradient(135deg,#4facfe,#00f2fe);
+        }
+
+        .stat-bg-4 {
+            background: linear-gradient(135deg,#43e97b,#38f9d7);
+        }
+
+        .module-card {
+            border-radius: 14px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0,0,0,.08);
+            transition: transform .2s, box-shadow .2s;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+
+            .module-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            }
+
+        .module-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: .75rem;
+        }
+
+        .table th {
+            font-size: .76rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #222;
+            border-top: none;
+        }
+
+        .table td {
+            vertical-align: middle;
+            font-size: .9rem;
+        }
+
+        .table-img {
+            width: 56px;
+            height: 42px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .badge-active {
+            background: #d4f8e8;
+            color: #0e7a42;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: .78rem;
+        }
+
+        .badge-inactive {
+            background: #fde8e8;
+            color: #c0392b;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: .78rem;
+        }
+
+        .img-preview-box {
+            width: 100%;
+            height: 160px;
+            border: 2px dashed #dde2ef;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f8f9fe;
+            cursor: pointer;
+        }
+
+            .img-preview-box img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .img-preview-box .placeholder-text {
+                color: #aab;
+                font-size: .82rem;
+                text-align: center;
+                padding: 1rem;
+            }
+
+        .drag-handle {
+            cursor: grab;
+            color: #ccc;
+        }
+
+            .drag-handle:active {
+                cursor: grabbing;
+            }
+
+        .sortable-ghost {
+            opacity: .4;
+            background: #eef2ff !important;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+        }
+        .text-muted{
+            color:#000;
+            font-size:16.5px;
+        }
+        @@media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+
+                #sidebar.show {
+                    transform: translateX(0);
+                }
+
+            #main-content {
+                margin-left: 0;
+            }
+        }
+        hr{
+                border-color: #00000047;
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <div class="sidebar-brand">
+            <span>Pop &amp; Zebra</span>
+            <small>Admin Panel</small>
+        </div>
+        <ul class="nav flex-column pt-2 pb-4">
+            <li><span class="nav-section-title">Overview</span></li>
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
+                   asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i>Dashboard
+                </a>
+            </li>
+            <li><span class="nav-section-title">CMS Modules</span></li>
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "HomeModule" ? "active" : "")"
+                   asp-controller="HomeModule" asp-action="Index">
+                    <i class="bi bi-house"></i>Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "About" ? "active" : "")"
+                   asp-controller="About" asp-action="Index">
+                    <i class="bi bi-info-circle"></i>About
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Shop" ? "active" : "")"
+                   asp-controller="Shop" asp-action="Index">
+                    <i class="bi bi-bag"></i>Shop
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Work" ? "active" : "")"
+                   asp-controller="Work" asp-action="Index">
+                    <i class="bi bi-briefcase"></i>Work
+                </a>
+            </li>
+            <li class="mt-4"><span class="nav-section-title">Accountrrrrr</span></li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Account" asp-action="Logout">
+                    <i class="bi bi-box-arrow-right"></i>Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div id="main-content">
+        <div class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-sm btn-light d-lg-none"
+                        onclick="document.getElementById('sidebar').classList.toggle('show')">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <h6 class="page-heading">@ViewData["Title"]</h6>
+            </div>
+            <span class="text-muted small d-flex align-items-center gap-1">
+                <i class="bi bi-person-circle"></i>
+                @User.Identity?.Name
+            </span>
+        </div>
+        <div class="p-4 flex-grow-1">
+            @RenderBody()
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container">
+        @if (TempData["Success"] != null)
+        {
+            <div class="toast show text-bg-success border-0 align-items-center" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold">
+                        <i class="bi bi-check-circle me-1"></i>@TempData["Success"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="toast show text-bg-danger border-0 align-items-center" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold">
+                        <i class="bi bi-exclamation-circle me-1"></i>@TempData["Error"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        document.querySelectorAll('.toast').forEach(function (el) {
+            setTimeout(function () {
+                bootstrap.Toast.getOrCreateInstance(el).hide();
+            }, 4000);
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

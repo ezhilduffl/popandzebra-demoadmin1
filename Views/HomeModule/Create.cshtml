@@ -1,0 +1,315 @@
+﻿@model PopZebra.Models.HomeSectionViewModel
+@{
+    ViewData["Title"] = "Home - Create";
+    Layout = "_Layout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-plus-circle me-2"></i>Create Home Section
+            </div>
+            <div class="card-body">
+
+                <form method="post"
+                      asp-action="Create"
+                      enctype="multipart/form-data"
+                      id="homeCreateForm"
+                      novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label">
+                            Title <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="Title"
+                               id="titleInput"
+                               class="form-control"
+                               placeholder="Enter section title" />
+                        <div class="text-danger small mt-1"
+                             id="titleError"></div>
+                    </div>
+
+                    <!-- Link URL -->
+                    <div class="mb-4">
+                        <label asp-for="LinkUrl" class="form-label">
+                            Link URL
+                            <small class="text-muted fw-normal">
+                                (optional — where the image links to)
+                            </small>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-link-45deg"></i>
+                            </span>
+                            <input asp-for="LinkUrl"
+                                   id="linkUrlInput"
+                                   class="form-control"
+                                   placeholder="https://..." />
+                        </div>
+                        <div class="text-danger small mt-1"
+                             id="linkUrlError"></div>
+                    </div>
+
+                    <!-- Set Image For -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Set Image For <span class="text-danger">*</span>
+                        </label>
+                        <div class="d-flex gap-4 mt-1">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="SetImageFor"
+                                       id="imgYes"
+                                       value="true"
+                                       onchange="handleImageMode(this)" />
+                                <label class="form-check-label fw-semibold"
+                                       for="imgYes">
+                                    Yes &nbsp;
+                                    <small class="text-muted">(Single image)</small>
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="SetImageFor"
+                                       id="imgNo"
+                                       value="false"
+                                       onchange="handleImageMode(this)" />
+                                <label class="form-check-label fw-semibold"
+                                       for="imgNo">
+                                    No &nbsp;
+                                    <small class="text-muted">(Mobile + Desktop)</small>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="imgModeError"
+                             class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Single Image -->
+                    <div id="singleImageSection" class="mb-4" style="display:none;">
+                        <label class="form-label">
+                            Image <span class="text-danger">*</span>
+                        </label>
+                        <div class="img-preview-box"
+                             id="singlePreviewBox"
+                             onclick="document.getElementById('singleImageInput').click()">
+                            <div class="placeholder-text">
+                                <i class="bi bi-cloud-upload fs-3 d-block mb-2 text-muted"></i>
+                                Click to upload image<br />
+                                <small>JPG, PNG, GIF — max 3MB</small>
+                            </div>
+                        </div>
+                        <input type="file"
+                               id="singleImageInput"
+                               name="SingleImage"
+                               accept=".jpg,.jpeg,.png,.gif"
+                               class="d-none"
+                               onchange="previewImage(this, 'singlePreviewBox')" />
+                        <div id="singleImageError"
+                             class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Mobile Image -->
+                    <div id="mobileImageSection" class="mb-4" style="display:none;">
+                        <label class="form-label">
+                            Mobile Image <span class="text-danger">*</span>
+                        </label>
+                        <div class="img-preview-box"
+                             id="mobilePreviewBox"
+                             onclick="document.getElementById('mobileImageInput').click()">
+                            <div class="placeholder-text">
+                                <i class="bi bi-phone fs-3 d-block mb-2 text-muted"></i>
+                                Click to upload mobile image<br />
+                                <small>JPG, PNG, GIF — max 3MB</small>
+                            </div>
+                        </div>
+                        <input type="file"
+                               id="mobileImageInput"
+                               name="MobileImage"
+                               accept=".jpg,.jpeg,.png,.gif"
+                               class="d-none"
+                               onchange="previewImage(this, 'mobilePreviewBox')" />
+                        <div id="mobileImageError"
+                             class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Desktop Image -->
+                    <div id="desktopImageSection" class="mb-4" style="display:none;">
+                        <label class="form-label">
+                            Desktop Image <span class="text-danger">*</span>
+                        </label>
+                        <div class="img-preview-box"
+                             id="desktopPreviewBox"
+                             onclick="document.getElementById('desktopImageInput').click()">
+                            <div class="placeholder-text">
+                                <i class="bi bi-display fs-3 d-block mb-2 text-muted"></i>
+                                Click to upload desktop image<br />
+                                <small>JPG, PNG, GIF — max 3MB</small>
+                            </div>
+                        </div>
+                        <input type="file"
+                               id="desktopImageInput"
+                               name="DesktopImage"
+                               accept=".jpg,.jpeg,.png,.gif"
+                               class="d-none"
+                               onchange="previewImage(this, 'desktopPreviewBox')" />
+                        <div id="desktopImageError"
+                             class="text-danger small mt-1"></div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i>Save
+                        </button>
+                        <a asp-action="Index"
+                           class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var maxSize     = 3 * 1024 * 1024;
+        var allowedExts = new RegExp('\\.(jpg|jpeg|png|gif)$', 'i');
+        var urlRegex    = new RegExp('^(https?:\\/\\/)[^\\s]+$', 'i');
+
+        // ── Real-time clear on input ──────────────────────────
+        document.getElementById('titleInput').addEventListener('input', function () {
+            if (this.value.trim()) {
+                document.getElementById('titleError').textContent = '';
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        document.getElementById('linkUrlInput').addEventListener('input', function () {
+            var val = this.value.trim();
+            if (!val || urlRegex.test(val)) {
+                document.getElementById('linkUrlError').textContent = '';
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        function handleImageMode(radio) {
+            var mode = (radio.value === 'true') ? 'single' : 'dual';
+            document.getElementById('singleImageSection').style.display  = 'none';
+            document.getElementById('mobileImageSection').style.display  = 'none';
+            document.getElementById('desktopImageSection').style.display = 'none';
+            document.getElementById('imgModeError').textContent          = '';
+
+            if (mode === 'single') {
+                document.getElementById('singleImageSection').style.display = 'block';
+            } else {
+                document.getElementById('mobileImageSection').style.display  = 'block';
+                document.getElementById('desktopImageSection').style.display = 'block';
+            }
+        }
+
+        function previewImage(input, previewBoxId) {
+            var file  = input.files[0];
+            var box   = document.getElementById(previewBoxId);
+            var errId = previewBoxId.replace('PreviewBox', 'ImageError');
+            var errEl = document.getElementById(errId);
+            if (errEl) errEl.textContent = '';
+            if (!file) return;
+
+            if (!allowedExts.test(file.name)) {
+                if (errEl) errEl.textContent =
+                    'Only JPG, PNG, and GIF files are allowed.';
+                input.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                if (errEl) errEl.textContent =
+                    'File size must not exceed 3 MB.';
+                input.value = '';
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                box.innerHTML =
+                    '<img src="' + e.target.result + '" ' +
+                    'style="width:100%;height:100%;' +
+                    'object-fit:cover;border-radius:8px;" />';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('homeCreateForm')
+            .addEventListener('submit', function (e) {
+            var valid = true;
+
+            // ── Title validation ──────────────────────────────
+            var titleEl = document.getElementById('titleInput');
+            var title   = titleEl.value.trim();
+            if (!title) {
+                document.getElementById('titleError').textContent =
+                    'Please enter the title.';
+                titleEl.classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('titleError').textContent = '';
+                titleEl.classList.remove('is-invalid');
+            }
+
+            // ── Link URL validation (optional but if filled must be valid) ─
+            var linkEl  = document.getElementById('linkUrlInput');
+            var linkVal = linkEl.value.trim();
+            if (linkVal && !urlRegex.test(linkVal)) {
+                document.getElementById('linkUrlError').textContent =
+                    'Please enter a valid URL starting with http:// or https://';
+                linkEl.classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('linkUrlError').textContent = '';
+                linkEl.classList.remove('is-invalid');
+            }
+
+            // ── Image mode validation ─────────────────────────
+            var modeSelected = document.querySelector(
+                'input[name="SetImageFor"]:checked');
+            if (!modeSelected) {
+                document.getElementById('imgModeError').textContent =
+                    'Please select Yes or No for Set Image For.';
+                valid = false;
+            } else if (modeSelected.value === 'true') {
+                var si = document.getElementById('singleImageInput');
+                if (!si.files || si.files.length === 0) {
+                    document.getElementById('singleImageError').textContent =
+                        'Please upload an image.';
+                    valid = false;
+                }
+            } else {
+                var mi = document.getElementById('mobileImageInput');
+                var di = document.getElementById('desktopImageInput');
+                if (!mi.files || mi.files.length === 0) {
+                    document.getElementById('mobileImageError').textContent =
+                        'Please upload a mobile image.';
+                    valid = false;
+                }
+                if (!di.files || di.files.length === 0) {
+                    document.getElementById('desktopImageError').textContent =
+                        'Please upload a desktop image.';
+                    valid = false;
+                }
+            }
+
+            if (!valid) e.preventDefault();
+        });
+    </script>
+}

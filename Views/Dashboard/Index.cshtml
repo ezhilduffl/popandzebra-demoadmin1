@@ -1,0 +1,116 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_Layout";
+}
+
+<!-- ── Stat Cards ───────────────────────────────────────── -->
+<div class="row g-3 mb-4 d-none">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-bg-1">
+            <i class="bi bi-house stat-icon"></i>
+            <div class="stat-value">@ViewBag.TotalHome</div>
+            <div class="stat-label">Total Home Sections</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-bg-2">
+            <i class="bi bi-bag stat-icon"></i>
+            <div class="stat-value">@ViewBag.TotalShop</div>
+            <div class="stat-label">Total Shop Items</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-bg-3">
+            <i class="bi bi-briefcase stat-icon"></i>
+            <div class="stat-value">@ViewBag.TotalWork</div>
+            <div class="stat-label">Total Work Items</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-bg-4">
+            <i class="bi bi-info-circle stat-icon"></i>
+            <div class="stat-value">@ViewBag.TotalAbout</div>
+            <div class="stat-label">Total About Sections</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── CMS Modules ──────────────────────────────────────── -->
+@* <p class="fw-bold text-muted text-uppercase mb-3"
+   style="font-size:.73rem;letter-spacing:.09em">CMS Modules</p> *@
+
+<div class="row g-3">
+
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="HomeModule" asp-action="Index"
+           class="module-card card p-3">
+            <div class="module-icon"
+                 style="background:linear-gradient(135deg,#667eea,#764ba2)">
+                <i class="bi bi-house-fill"></i>
+            </div>
+            <div class="fw-bold text-dark">Home</div>
+            <div class="text-muted small">Banner images and title</div>
+            <div class="mt-2">
+                <span class="badge rounded-pill"
+                      style="background:#ede9fe;color:#5b21b6;font-size:.72rem;">
+                    @ViewBag.TotalHome record@(ViewBag.TotalHome == 1 ? "" : "s")
+                </span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="About" asp-action="Index"
+           class="module-card card p-3">
+            <div class="module-icon"
+                 style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+            <div class="fw-bold text-dark">About</div>
+            <div class="text-muted small">Content and social links</div>
+            <div class="mt-2">
+                <span class="badge rounded-pill"
+                      style="background:#fce7f3;color:#9d174d;font-size:.72rem;">
+                    @ViewBag.TotalAbout record@(ViewBag.TotalAbout == 1 ? "" : "s")
+                </span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Shop" asp-action="Index"
+           class="module-card card p-3">
+            <div class="module-icon"
+                 style="background:linear-gradient(135deg,#4facfe,#00f2fe)">
+                <i class="bi bi-bag-fill"></i>
+            </div>
+            <div class="fw-bold text-dark">Shop</div>
+            <div class="text-muted small">Manage shop items</div>
+            <div class="mt-2">
+                <span class="badge rounded-pill"
+                      style="background:#e0f2fe;color:#075985;font-size:.72rem;">
+                    @ViewBag.TotalShop record@(ViewBag.TotalShop == 1 ? "" : "s")
+                </span>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Work" asp-action="Index"
+           class="module-card card p-3">
+            <div class="module-icon"
+                 style="background:linear-gradient(135deg,#43e97b,#38f9d7)">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+            <div class="fw-bold text-dark">Work</div>
+            <div class="text-muted small">Carousel items</div>
+            <div class="mt-2">
+                <span class="badge rounded-pill"
+                      style="background:#d1fae5;color:#065f46;font-size:.72rem;">
+                    @ViewBag.TotalWork of 5 slot@(ViewBag.TotalWork == 1 ? "" : "s") used
+                </span>
+            </div>
+        </a>
+    </div>
+
+</div>

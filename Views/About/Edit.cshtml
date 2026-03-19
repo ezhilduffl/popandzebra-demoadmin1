@@ -1,0 +1,300 @@
+﻿@model PopZebra.Models.AboutSectionViewModel
+@{
+    ViewData["Title"] = "About - Edit";
+    Layout = "_Layout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+
+        <form method="post"
+              asp-action="Edit"
+              asp-route-id="@Model.Id"
+              enctype="multipart/form-data"
+              id="aboutEditForm"
+              novalidate>
+            @Html.AntiForgeryToken()
+
+            <!-- Content Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-file-text me-2"></i>Content
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">
+                            Content <span class="text-danger">*</span>
+                        </label>
+                        <textarea asp-for="Content"
+                                  id="contentEditor"
+                                  class="form-control"
+                                  rows="6"
+                                  placeholder="Enter about page content..."></textarea>
+                        <span asp-validation-for="Content"
+                              class="text-danger small"></span>
+                    </div>
+
+                    <!-- Status Switch -->
+                    <div class="d-flex align-items-center gap-3">
+                        <label class="form-label mb-0 fw-semibold">Status</label>
+                        <div class="form-check form-switch mb-0">
+                            <input asp-for="IsActive"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   role="switch"
+                                   id="statusSwitch"
+                                   style="width:2.8em;height:1.4em;cursor:pointer;" />
+                            <label class="ms-1 form-check-label fw-semibold"
+                                   id="statusLabel"
+                                   for="statusSwitch">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Timestamps -->
+                    <div class="row mt-4 d-none">
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">Created On</label>
+                            <input type="text"
+                                   class="form-control form-control-sm bg-light"
+                                   value="@Model.CreatedOn?.ToString("dd MMM yyyy")"
+                                   readonly />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label text-muted small">Updated On</label>
+                            <input type="text"
+                                   class="form-control form-control-sm bg-light"
+                                   value="@Model.UpdatedOn?.ToString("dd MMM yyyy")"
+                                   readonly />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Icons Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-grid me-2"></i>Icon Section
+                    <small class="text-muted ms-2">
+                        (Upload new image to replace existing)
+                    </small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+
+                        @for (int i = 0; i < Model.Icons.Count; i++)
+                        {
+                            var icon = Model.Icons[i];
+                            <div class="col-md-6 col-xl-4">
+                                <div class="border rounded-3 p-3 h-100"
+                                     style="background:#f8f9fe;">
+
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <div class="rounded-circle d-flex align-items-center
+                                                        justify-content-center fw-bold text-white"
+                                             style="width:30px;height:30px;font-size:.8rem;
+                                                        background:var(--brand-accent);">
+                                            @(i + 1)
+                                        </div>
+                                        <span class="fw-semibold">Icon @(i + 1)</span>
+                                    </div>
+
+                                    <input type="hidden"
+                                           name="Icons[@i].Id"
+                                           value="@icon.Id" />
+                                    <input type="hidden"
+                                           name="Icons[@i].SortOrder"
+                                           value="@(i + 1)" />
+                                    <input type="hidden"
+                                           name="Icons[@i].ExistingIconPath"
+                                           value="@icon.ExistingIconPath" />
+
+                                    <!-- Title -->
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Title <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               name="Icons[@i].Title"
+                                               value="@icon.Title"
+                                               class="form-control form-control-sm"
+                                               placeholder="e.g. Facebook" />
+                                        <span class="text-danger small"
+                                              id="iconTitleError_@i"></span>
+                                    </div>
+
+                                    <!-- Current Icon + Upload -->
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Icon Image
+                                            @if (icon.Id == 0)
+                                            {
+                                                <span class="text-danger">*</span>
+                                            }
+                                            else
+                                            {
+                                                <small class="text-muted fw-normal">
+                                                    (optional — upload to replace)
+                                                </small>
+                                            }
+                                        </label>
+                                        @if (!string.IsNullOrEmpty(icon.ExistingIconPath))
+                                        {
+                                            <div class="mb-2 text-center">
+                                                <img src="@icon.ExistingIconPath"
+                                                     style="height:50px;object-fit:contain;
+                                                                    border-radius:6px;"
+                                                     alt="Current icon" />
+                                                <small class="text-muted d-block">Current</small>
+                                            </div>
+                                        }
+                                        <div class="img-preview-box"
+                                             id="iconPreview_@i"
+                                             onclick="document.getElementById('iconFile_@i').click()"
+                                             style="height:90px;">
+                                            <div class="placeholder-text">
+                                                <i class="bi bi-cloud-upload fs-4 d-block
+                                                              text-muted"></i>
+                                                <small>Click to upload new</small>
+                                            </div>
+                                        </div>
+                                        <input type="file"
+                                               id="iconFile_@i"
+                                               name="Icons[@i].IconFile"
+                                               accept=".jpg,.jpeg,.png,.gif"
+                                               class="d-none"
+                                               onchange="previewIcon(this, @i)" />
+                                        <span class="text-danger small"
+                                              id="iconFileError_@i"></span>
+                                    </div>
+
+                                    <!-- Link -->
+                                    <div class="mb-1">
+                                        <label class="form-label">
+                                            Link URL <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               name="Icons[@i].LinkUrl"
+                                               value="@icon.LinkUrl"
+                                               class="form-control form-control-sm"
+                                               placeholder="https://..." />
+                                        <span class="text-danger small"
+                                              id="iconLinkError_@i"></span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-5">
+                    <i class="bi bi-check-circle me-1"></i>Update
+                </button>
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var maxSize     = 3 * 1024 * 1024;
+        var allowedExts = new RegExp('\\.(jpg|jpeg|png|gif)$', 'i');
+
+        document.getElementById('statusSwitch').addEventListener('change', function () {
+            document.getElementById('statusLabel').textContent =
+                this.checked ? 'Active' : 'Inactive';
+        });
+
+        function previewIcon(input, idx) {
+            var file  = input.files[0];
+            var box   = document.getElementById('iconPreview_' + idx);
+            var errEl = document.getElementById('iconFileError_' + idx);
+            errEl.textContent = '';
+
+            if (!file) return;
+
+            if (!allowedExts.test(file.name)) {
+                errEl.textContent = 'Only JPG, PNG, GIF allowed.';
+                input.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                errEl.textContent = 'Max file size is 3MB.';
+                input.value = '';
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                box.innerHTML =
+                    '<img src="' + e.target.result + '" ' +
+                    'style="width:100%;height:100%;object-fit:contain;' +
+                    'border-radius:8px;padding:4px;" />';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('aboutEditForm').addEventListener('submit', function (e) {
+            var valid = true;
+
+            var content = document.getElementById('contentEditor').value.trim();
+            if (!content) valid = false;
+
+            for (var i = 0; i < 5; i++) {
+                var titleEl = document.querySelector(
+                    'input[name="Icons[' + i + '].Title"]');
+                var linkEl  = document.querySelector(
+                    'input[name="Icons[' + i + '].LinkUrl"]');
+                var idEl    = document.querySelector(
+                    'input[name="Icons[' + i + '].Id"]');
+                var fileEl  = document.getElementById('iconFile_' + i);
+
+                var isNewIcon = idEl && idEl.value === '0';
+
+                if (!titleEl || !titleEl.value.trim()) {
+                    document.getElementById('iconTitleError_' + i).textContent =
+                        'Icon ' + (i + 1) + ' title is required.';
+                    valid = false;
+                } else {
+                    document.getElementById('iconTitleError_' + i).textContent = '';
+                }
+
+                if (!linkEl || !linkEl.value.trim()) {
+                    document.getElementById('iconLinkError_' + i).textContent =
+                        'Icon ' + (i + 1) + ' link is required.';
+                    valid = false;
+                } else {
+                    document.getElementById('iconLinkError_' + i).textContent = '';
+                }
+
+                if (isNewIcon &&
+                    (!fileEl || !fileEl.files || fileEl.files.length === 0)) {
+                    document.getElementById('iconFileError_' + i).textContent =
+                        'Icon ' + (i + 1) + ' image is required.';
+                    valid = false;
+                } else {
+                    document.getElementById('iconFileError_' + i).textContent = '';
+                }
+            }
+
+            if (!valid) e.preventDefault();
+        });
+    </script>
+}

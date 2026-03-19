@@ -1,0 +1,159 @@
+﻿@model PopZebra.Models.PaginatedList<PopZebra.Models.WorkItem>
+@{
+    ViewData["Title"] = "Work Module";
+    Layout = "_Layout";
+    int serialStart = ((Model.PageIndex - 1) * Model.PageSize) + 1;
+    int sno = serialStart;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h5 class="fw-bold mb-1 pz-section-title">Work Items</h5>
+        <p class="text-muted small mb-0">
+            @Model.TotalCount of 10 slots used
+        </p>
+    </div>
+    @if (ViewBag.CanAdd)
+    {
+        <a asp-action="Create" class="btn btn-primary px-4">
+            <i class="bi bi-plus-lg me-1"></i>Add New
+        </a>
+    }
+    else
+    {
+        <button class="btn btn-secondary px-4" disabled>
+            <i class="bi bi-slash-circle me-1"></i>All Slots Used
+        </button>
+    }
+</div>
+
+<!-- Slot indicator — 10 slots -->
+<div class="d-flex gap-2 mb-4 flex-wrap">
+    @for (int slot = 1; slot <= 10; slot++)
+    {
+        var taken = Model.Items.Any(w => w.DisplayOrder == slot);
+        <div class="d-flex flex-column align-items-center gap-1">
+            <div class="rounded-circle d-flex align-items-center
+                            justify-content-center fw-bold small"
+                 style="width:36px;height:36px;
+                            background:@(taken ? "var(--brand-accent)" : "#e5e7eb");
+                            color:@(taken ? "#fff" : "#9ca3af");">
+                @slot
+            </div>
+            <small style="font-size:.65rem;
+                              color:@(taken ? "var(--brand-accent)" : "#9ca3af");">
+                @(taken ? "Used" : "Free")
+            </small>
+        </div>
+    }
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-briefcase display-4 text-muted mb-3 d-block"></i>
+            <h6 class="text-muted">No work items found</h6>
+            <a asp-action="Create" class="btn btn-primary mt-2">
+                Add First Item
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:60px">S.No</th>
+                            <th style="width:70px">Order</th>
+                            <th style="width:90px;display:none;">Image</th>
+                            <th>Title</th>
+                            <th>Link URL</th>
+                            <th>Created On</th>
+                            <th>Updated On</th>
+                            <th style="width:160px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="text-muted small align-middle fw-semibold">
+                                    @sno
+                                </td>
+                                <td class="align-middle">
+                                    <div class="rounded-circle d-inline-flex
+                                                        align-items-center justify-content-center
+                                                        fw-bold text-white"
+                                         style="width:32px;height:32px;font-size:.82rem;
+                                                        background:var(--brand-accent);">
+                                        @item.DisplayOrder
+                                    </div>
+                                </td>
+                                <td class="align-middle d-none">
+                                    <img src="@item.ImagePath"
+                                         class="table-img" alt="@item.Title" />
+                                </td>
+                                <td class="fw-semibold align-middle">
+                                    @item.Title
+                                </td>
+                                <td class="align-middle">
+                                    <a href="@item.LinkUrl" target="_blank"
+                                       class="text-decoration-none small"
+                                       style="color:var(--brand-accent);">
+                                        <i class="bi bi-link-45deg"></i>
+                                        @(item.LinkUrl.Length > 35
+                                                                        ? item.LinkUrl[..35] + "..."
+                                                                        : item.LinkUrl)
+                                    </a>
+                                </td>
+                                <td class="text-muted small align-middle">
+                                    @item.CreatedOn.ToString("dd MMM yyyy")
+                                </td>
+                                <td class="text-muted small align-middle">
+                                    @item.UpdatedOn.ToString("dd MMM yyyy")
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex gap-1">
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-danger"
+                                           title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            sno++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Pagination", new PopZebra.Models.PaginationViewModel
+    {
+        PageIndex = Model.PageIndex,
+        TotalPages = Model.TotalPages,
+        TotalCount = Model.TotalCount,
+        PageSize = Model.PageSize,
+        Url = p => Url.Action("Index", "Work", new { page = p })!
+    })
+}

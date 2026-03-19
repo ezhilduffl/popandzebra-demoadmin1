@@ -1,0 +1,174 @@
+﻿@model PopZebra.Models.HomeSection
+@{
+    ViewData["Title"] = "Home - Details";
+    Layout = "_Layout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="bi bi-house me-2"></i>Home Section Details
+                </span>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.Id"
+                       class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id"
+                       class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <!-- ID -->
+                <div class="row mb-3 d-none">
+                    <div class="col-sm-4 text-muted fw-semibold">ID</div>
+                    <div class="col-sm-8">@Model.Id</div>
+                </div>
+             
+
+                <!-- Title -->
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-semibold">Title</div>
+                    <div class="col-sm-8">@Model.Title</div>
+                </div>
+                <hr class="my-2" />
+
+                <!-- Link URL -->
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-semibold">Link URL</div>
+                    <div class="col-sm-8">
+                        @if (!string.IsNullOrEmpty(Model.LinkUrl))
+                        {
+                            <a href="@Model.LinkUrl"
+                               target="_blank"
+                               class="text-decoration-none"
+                               style="color:var(--brand-accent);
+                                          word-break:break-all;">
+                                <i class="bi bi-link-45deg me-1"></i>@Model.LinkUrl
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted small">No link set</span>
+                        }
+                    </div>
+                </div>
+                <hr class="my-2" />
+
+                <!-- Image Mode -->
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted fw-semibold">Image Mode</div>
+                    <div class="col-sm-8">
+                        @if (Model.SetImageFor)
+                        {
+                            <span class="badge-active px-2 py-1">
+                                Single Image
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge-inactive px-2 py-1">
+                                Mobile + Desktop
+                            </span>
+                        }
+                    </div>
+                </div>
+                <hr class="my-2" />
+
+                <!-- Single Image -->
+                @if (Model.SetImageFor && Model.SingleImagePath != null)
+                {
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-semibold">Image</div>
+                        <div class="col-sm-8">
+                            <img src="@Model.SingleImagePath"
+                                 class="img-fluid rounded"
+                                 style="max-height:220px;object-fit:cover;"
+                                 alt="Single Image" />
+                        </div>
+                    </div>
+                    <hr class="my-2" />
+                }
+
+                <!-- Mobile + Desktop Images -->
+                @if (!Model.SetImageFor)
+                {
+                    <div class="row">
+                        <div class="col-6">
+
+                  
+                    @if (Model.MobileImagePath != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-12 text-muted fw-semibold mb-1">
+                                Mobile Image
+                            </div>
+                            <div class="col-sm-12">
+                                <img src="@Model.MobileImagePath"
+                                     class="img-fluid rounded"
+                                     style="max-height:200px;object-fit:cover;"
+                                     alt="Mobile Image" />
+                            </div>
+                        </div>
+                       
+                    }
+                        </div>
+                        <div class="col-6">
+                    @if (Model.DesktopImagePath != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-12 text-muted fw-semibold mb-1">
+                                Desktop Image
+                            </div>
+                            <div class="col-sm-12">
+                                <img src="@Model.DesktopImagePath"
+                                     class="img-fluid rounded"
+                                     style="max-height:200px;object-fit:cover;"
+                                     alt="Desktop Image" />
+                            </div>
+                        </div>
+                       
+                    }
+                        </div>
+                        <hr class="my-2" />
+                    </div>
+                   
+                }
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row ">
+                            <div class="col-sm-12 mb-1 text-muted fw-semibold">Created On</div>
+                            <div class="col-sm-12">
+                                @Model.CreatedOn.ToString("dd MMM yyyy")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="row ">
+                            <div class="col-sm-12 mb-1 text-muted fw-semibold">Updated On</div>
+                            <div class="col-sm-12">
+                                @Model.UpdatedOn.ToString("dd MMM yyyy")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+                
+                
+               
+
+            </div>
+        </div>
+    </div>
+</div>

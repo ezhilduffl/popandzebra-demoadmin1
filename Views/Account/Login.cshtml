@@ -1,0 +1,992 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pop & Zebra — Admin Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet" />
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 48px 44px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 60px rgba(0,0,0,.18);
+        }
+
+        .brand-logo {
+            
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+            .brand-logo i {
+                font-size: 1.6rem;
+                color: #fff;
+            }
+            .brand-logo img{
+                max-width:170px;
+            }
+
+        .login-title {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .login-sub {
+            font-size: .88rem;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .form-label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: .92rem;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .form-control:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102,126,234,.15);
+                outline: none;
+            }
+
+            .form-control.is-invalid {
+                border-color: #ef4444;
+                box-shadow: none;
+                background-image:none;
+            }
+
+                .form-control.is-invalid:focus {
+                    border-color: #ef4444;
+                    box-shadow: 0 0 0 3px rgba(239,68,68,.12);
+                }
+
+        .invalid-feedback {
+            font-size: .8rem;
+            color: #ef4444;
+            margin-top: 5px;
+            display: none;
+        }
+
+            .invalid-feedback.show {
+                display: block;
+            }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+            .input-icon:hover {
+                color: #667eea;
+            }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: .95rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: .02em;
+            transition: opacity .2s, transform .1s;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+            .btn-login:hover {
+                opacity: .92;
+            }
+
+            .btn-login:active {
+                transform: scale(.98);
+            }
+
+            .btn-login:disabled {
+                opacity: .65;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .forgot-link {
+            font-size: .82rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .forgot-link:hover {
+                text-decoration: underline;
+            }
+
+        .server-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: .85rem;
+            color: #dc2626;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* ── Spinner ── */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Forgot password overlay ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,.45);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+            .modal-overlay.active {
+                display: flex;
+            }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 18px;
+            padding: 36px 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 50px rgba(0,0,0,.2);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+
+            .modal-close:hover {
+                color: #374151;
+            }
+
+        .step {
+            display: none;
+        }
+
+            .step.active {
+                display: block;
+            }
+
+        .otp-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .otp-input {
+            width: 48px;
+            height: 52px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            outline: none;
+        }
+
+            .otp-input:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102,126,234,.15);
+            }
+
+            .otp-input.is-invalid {
+                border-color: #ef4444;
+            }
+
+        .timer-text {
+            font-size: .82rem;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            font-size: .82rem;
+        }
+
+            .resend-btn:disabled {
+                color: #9ca3af;
+                cursor: not-allowed;
+            }
+
+        .pwd-strength {
+            height: 4px;
+            border-radius: 4px;
+            transition: width .3s, background .3s;
+        }
+
+        @@media (max-width: 480px) {
+            .login-card {
+                padding: 32px 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+
+        <!-- Brand -->
+        @* <div class="brand-logo"><i class="bi bi-grid-3x3-gap-fill"></i></div> *@
+         <div class="brand-logo"><img src="/images/logo.png" /></div>
+        @* <div class="login-title">Pop & Zebra</div> *@
+        <div class="login-sub">Sign in to your admin dashboard</div>
+
+        <!-- Server-side error -->
+        @if (!string.IsNullOrEmpty(ViewBag.Error))
+        {
+            <div class="server-error">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                @ViewBag.Error
+            </div>
+        }
+
+        <!-- Login Form -->
+        <form method="post"
+              asp-controller="Account"
+              asp-action="Login"
+              id="loginForm"
+              novalidate>
+            @Html.AntiForgeryToken()
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label class="form-label">Email ID</label>
+                <div class="input-wrapper">
+                    <input type="email"
+                           id="emailInput"
+                           name="Email"
+                           class="form-control pe-5"
+                           placeholder=""
+                           autocomplete="email" />
+                    <i class="bi bi-envelope input-icon"></i>
+                </div>
+                <div class="invalid-feedback" id="emailError"></div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label class="form-label mb-0">Password</label>
+                    <a href="#" class="forgot-link"
+                       onclick="openForgot(event)">Forgot password?</a>
+                </div>
+                <div class="input-wrapper mt-1">
+                    <input type="password"
+                           id="passwordInput"
+                           name="Password"
+                           class="form-control pe-5"
+                           placeholder=""
+                           autocomplete="current-password" />
+                    <i class="bi bi-eye input-icon"
+                       id="togglePassword"
+                       onclick="togglePwd()"></i>
+                </div>
+                <div class="invalid-feedback" id="passwordError"></div>
+            </div>
+
+            <!-- Sign In button with loading state -->
+            <button type="submit"
+                    class="btn-login mt-3"
+                    id="loginBtn">
+                <i class="bi bi-box-arrow-in-right"
+                   id="loginBtnIcon"></i>
+                <span id="loginBtnText">Sign In</span>
+            </button>
+
+        </form>
+    </div>
+
+    <!-- ── Forgot Password Modal ── -->
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeForgot()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+
+            <!-- Step 1: Enter Email -->
+            <div class="step active" id="step1">
+                <h5 class="fw-bold mb-1">Forgot Password</h5>
+                <p class="text-muted small mb-4">
+                    Enter your registered email to receive an OTP.
+                </p>
+                <label class="form-label">Email ID</label>
+                <div class="input-wrapper">
+                    <input type="email"
+                           id="forgotEmail"
+                           class="form-control pe-5"
+                           placeholder="" />
+                    <i class="bi bi-envelope input-icon"></i>
+                </div>
+                <div class="invalid-feedback" id="forgotEmailError"></div>
+
+                <button class="btn-login mt-4"
+                        id="sendOtpBtn"
+                        onclick="sendOtp()">
+                    <i class="bi bi-send" id="sendOtpIcon"></i>
+                    <span id="sendOtpText">Send OTP</span>
+                </button>
+            </div>
+
+            <!-- Step 2: Enter OTP -->
+            <div class="step" id="step2">
+                <h5 class="fw-bold mb-1">Enter OTP</h5>
+                <p class="text-muted small mb-4" id="otpSentMsg">
+                    OTP sent to your email.
+                </p>
+                <div class="otp-inputs mb-3" id="otpInputs">
+                    <input class="otp-input" maxlength="1"
+                           type="text" inputmode="numeric" />
+                    <input class="otp-input" maxlength="1"
+                           type="text" inputmode="numeric" />
+                    <input class="otp-input" maxlength="1"
+                           type="text" inputmode="numeric" />
+                    <input class="otp-input" maxlength="1"
+                           type="text" inputmode="numeric" />
+                    <input class="otp-input" maxlength="1"
+                           type="text" inputmode="numeric" />
+                </div>
+                <div class="invalid-feedback mb-3" id="otpError"></div>
+                <div class="timer-text mb-3">
+                    <span id="timerDisplay">OTP expires in 05:00</span>
+                </div>
+                <div class="text-center mb-3">
+                    <button class="resend-btn" id="resendBtn"
+                            disabled onclick="resendOtp()">
+                        Resend OTP
+                        <span id="resendTimer"></span>
+                    </button>
+                </div>
+                <button class="btn-login" onclick="verifyOtp()">
+                    <i class="bi bi-shield-check"></i>Verify OTP
+                </button>
+            </div>
+
+            <!-- Step 3: New Password -->
+            <div class="step" id="step3">
+                <h5 class="fw-bold mb-1">Reset Password</h5>
+                <p class="text-muted small mb-4">Enter your new password.</p>
+
+                <label class="form-label">New Password</label>
+                <div class="input-wrapper mb-1">
+                    <input type="password"
+                           id="newPassword"
+                           class="form-control pe-5"
+                           placeholder="Min 8 chars, uppercase, number, special" />
+                    <i class="bi bi-eye input-icon"
+                       onclick="toggleField('newPassword', this)"></i>
+                </div>
+                <div class="mb-2">
+                    <div class="bg-light rounded" style="height:4px;">
+                        <div id="pwdStrengthBar"
+                             class="pwd-strength" style="width:0%"></div>
+                    </div>
+                    <small id="pwdStrengthText"
+                           class="text-muted" style="font-size:.75rem;"></small>
+                </div>
+                <div class="invalid-feedback mb-3" id="newPasswordError"></div>
+
+                <label class="form-label">Confirm Password</label>
+                <div class="input-wrapper mb-1">
+                    <input type="password"
+                           id="confirmPassword"
+                           class="form-control pe-5"
+                           placeholder="Re-enter new password" />
+                    <i class="bi bi-eye input-icon"
+                       onclick="toggleField('confirmPassword', this)"></i>
+                </div>
+                <div class="invalid-feedback mb-3" id="confirmPasswordError"></div>
+
+                <button class="btn-login" onclick="resetPassword()">
+                    <i class="bi bi-check-circle"></i>Reset Password
+                </button>
+            </div>
+
+            <!-- Step 4: Success -->
+            <div class="step" id="step4">
+                <div class="text-center py-3">
+                    <div style="width:64px;height:64px;background:#dcfce7;
+                            border-radius:50%;display:flex;align-items:center;
+                            justify-content:center;margin:0 auto 16px;">
+                        <i class="bi bi-check-lg"
+                           style="font-size:1.8rem;color:#16a34a;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Password Reset!</h5>
+                    <p class="text-muted small mb-4">
+                        Your password has been reset successfully.
+                        You can now sign in.
+                    </p>
+                    <button class="btn-login" onclick="closeForgot()">
+                        <i class="bi bi-box-arrow-in-right"></i>Back to Sign In
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ── Regex ────────────────────────────────────────────────
+        var emailRegex   = new RegExp('^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$');
+        var upperRegex   = new RegExp('[A-Z]');
+        var numberRegex  = new RegExp('[0-9]');
+        var specialRegex = new RegExp('[!@@#$%^&*]');
+        var noDigitRegex = new RegExp('[^0-9]', 'g');
+
+        // ── Error helpers ─────────────────────────────────────────
+        function showError(inputEl, feedbackId, msg) {
+            inputEl.classList.add('is-invalid');
+            inputEl.classList.remove('is-valid');
+            var el = document.getElementById(feedbackId);
+            el.textContent = msg;
+            el.classList.add('show');
+        }
+
+        function clearError(inputEl, feedbackId) {
+            inputEl.classList.remove('is-invalid');
+            var el = document.getElementById(feedbackId);
+            el.textContent = '';
+            el.classList.remove('show');
+        }
+
+        // ── Login button loading state ────────────────────────────
+        function setLoginLoading(loading) {
+            var btn      = document.getElementById('loginBtn');
+            var icon     = document.getElementById('loginBtnIcon');
+            var textSpan = document.getElementById('loginBtnText');
+
+            if (loading) {
+                btn.disabled = true;
+                icon.outerHTML =
+                    '<div class="spinner" id="loginBtnIcon"></div>';
+                textSpan.textContent = 'Logging in...';
+            } else {
+                btn.disabled = false;
+                var spinner = document.getElementById('loginBtnIcon');
+                if (spinner) {
+                    spinner.outerHTML =
+                        '<i class="bi bi-box-arrow-in-right" id="loginBtnIcon"></i>';
+                }
+                textSpan.textContent = 'Sign In';
+            }
+        }
+
+        // ── Send OTP button loading state ─────────────────────────
+        function setSendOtpLoading(loading) {
+            var btn      = document.getElementById('sendOtpBtn');
+            var icon     = document.getElementById('sendOtpIcon');
+            var textSpan = document.getElementById('sendOtpText');
+
+            if (loading) {
+                btn.disabled = true;
+                icon.outerHTML =
+                    '<div class="spinner" id="sendOtpIcon"></div>';
+                textSpan.textContent = 'Please wait...';
+            } else {
+                btn.disabled = false;
+                var spinner = document.getElementById('sendOtpIcon');
+                if (spinner) {
+                    spinner.outerHTML =
+                        '<i class="bi bi-send" id="sendOtpIcon"></i>';
+                }
+                textSpan.textContent = 'Send OTP';
+            }
+        }
+
+        // ── Login form validation ─────────────────────────────────
+        var emailInput    = document.getElementById('emailInput');
+        var passwordInput = document.getElementById('passwordInput');
+
+        emailInput.addEventListener('input', function () {
+            if (this.value.trim()) clearError(this, 'emailError');
+        });
+
+        passwordInput.addEventListener('input', function () {
+            if (this.value.trim()) clearError(this, 'passwordError');
+        });
+
+        emailInput.addEventListener('blur', function () {
+            validateEmail();
+        });
+
+        passwordInput.addEventListener('blur', function () {
+            validatePassword();
+        });
+
+        function validateEmail() {
+            var val = emailInput.value.trim();
+            if (!val) {
+                showError(emailInput, 'emailError',
+                    'Enter email id.');
+                return false;
+            }
+            if (!emailRegex.test(val)) {
+                showError(emailInput, 'emailError',
+                    'Enter a valid email id.');
+                return false;
+            }
+            clearError(emailInput, 'emailError');
+            return true;
+        }
+
+        function validatePassword() {
+            var val = passwordInput.value;
+            if (!val) {
+                showError(passwordInput, 'passwordError',
+                    'Enter password.');
+                return false;
+            }
+            clearError(passwordInput, 'passwordError');
+            return true;
+        }
+
+        // ── Form submit — validate then show loading ───────────────
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            var emailOk    = validateEmail();
+            var passwordOk = validatePassword();
+
+            if (!emailOk || !passwordOk) {
+                e.preventDefault();
+                return;
+            }
+
+            // ── Show loading state on button ──────────────────────
+            setLoginLoading(true);
+
+            // Form submits normally to server
+            // If server returns error, page reloads and button
+            // resets automatically because page is fresh
+        });
+
+        // ── Password toggle ───────────────────────────────────────
+        function togglePwd() {
+            var input = document.getElementById('passwordInput');
+            var icon  = document.getElementById('togglePassword');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
+        function toggleField(id, iconEl) {
+            var input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconEl.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                iconEl.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
+        // ── Forgot modal ──────────────────────────────────────────
+        function openForgot(e) {
+            e.preventDefault();
+            document.getElementById('forgotModal').classList.add('active');
+            showStep('step1');
+        }
+
+        function closeForgot() {
+            document.getElementById('forgotModal').classList.remove('active');
+            document.getElementById('forgotEmail').value = '';
+            document.getElementById('forgotEmailError').textContent = '';
+            document.getElementById('forgotEmailError').classList.remove('show');
+            document.getElementById('forgotEmail').classList.remove('is-invalid');
+            setSendOtpLoading(false);
+            clearOtpInputs();
+            showStep('step1');
+            stopTimer();
+        }
+
+        function showStep(id) {
+            document.querySelectorAll('.step').forEach(function (s) {
+                s.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ── OTP Timer ─────────────────────────────────────────────
+        var timerInterval  = null;
+        var resendInterval = null;
+
+        function startTimer(seconds) {
+            stopTimer();
+            var remaining = seconds;
+            updateTimerDisplay(remaining);
+            timerInterval = setInterval(function () {
+                remaining--;
+                updateTimerDisplay(remaining);
+                if (remaining <= 0) {
+                    stopTimer();
+                    document.getElementById('timerDisplay').textContent =
+                        'OTP expired. Please resend.';
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay(sec) {
+            var m = String(Math.floor(sec / 60)).padStart(2, '0');
+            var s = String(sec % 60).padStart(2, '0');
+            document.getElementById('timerDisplay').textContent =
+                'OTP expires in ' + m + ':' + s;
+        }
+
+        function startResendTimer(seconds) {
+            var resendBtn = document.getElementById('resendBtn');
+            resendBtn.disabled = true;
+            var remaining = seconds;
+            document.getElementById('resendTimer').textContent =
+                ' (' + remaining + 's)';
+            resendInterval = setInterval(function () {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(resendInterval);
+                    resendBtn.disabled = false;
+                    document.getElementById('resendTimer').textContent = '';
+                } else {
+                    document.getElementById('resendTimer').textContent =
+                        ' (' + remaining + 's)';
+                }
+            }, 1000);
+        }
+
+        // ── OTP input auto-advance ────────────────────────────────
+        function clearOtpInputs() {
+            document.querySelectorAll('.otp-input').forEach(function (inp) {
+                inp.value = '';
+                inp.classList.remove('is-invalid');
+            });
+        }
+
+        document.querySelectorAll('.otp-input').forEach(function (inp, idx, arr) {
+            inp.addEventListener('input', function () {
+                this.value = this.value.replace(noDigitRegex, '');
+                if (this.value.length === 1 && idx < arr.length - 1)
+                    arr[idx + 1].focus();
+            });
+            inp.addEventListener('keydown', function (e) {
+                if (e.key === 'Backspace' && !this.value && idx > 0)
+                    arr[idx - 1].focus();
+            });
+        });
+
+        // ── Step 1: Send OTP ──────────────────────────────────────
+        async function sendOtp() {
+            var emailEl = document.getElementById('forgotEmail');
+            var val     = emailEl.value.trim();
+
+            if (!val) {
+                showError(emailEl, 'forgotEmailError',
+                    'Enter email id.');
+                return;
+            }
+            if (!emailRegex.test(val)) {
+                showError(emailEl, 'forgotEmailError',
+                    'Enter a valid email id.');
+                return;
+            }
+            clearError(emailEl, 'forgotEmailError');
+
+            setSendOtpLoading(true);
+
+            try {
+                var res  = await fetch('/Account/SendOtp', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(val)
+                });
+                var data = await res.json();
+
+                if (data.success) {
+                    setSendOtpLoading(false);
+                    document.getElementById('otpSentMsg').textContent =
+                        'OTP sent to ' + val;
+                    clearOtpInputs();
+                    showStep('step2');
+                    startTimer(300);
+                    startResendTimer(30);
+                    document.getElementById('otpError').classList.remove('show');
+                } else {
+                    setSendOtpLoading(false);
+                    showError(emailEl, 'forgotEmailError',
+                        data.message || 'Email not found. Please try again.');
+                }
+            } catch (err) {
+                setSendOtpLoading(false);
+                showError(emailEl, 'forgotEmailError',
+                    'Network error. Please try again.');
+            }
+        }
+
+        // ── Step 2: Resend OTP ────────────────────────────────────
+        async function resendOtp() {
+            var val = document.getElementById('forgotEmail').value.trim();
+            try {
+                var res  = await fetch('/Account/SendOtp', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(val)
+                });
+                var data = await res.json();
+                if (data.success) {
+                    clearOtpInputs();
+                    startTimer(300);
+                    startResendTimer(30);
+                    document.getElementById('otpError').classList.remove('show');
+                }
+            } catch (err) { }
+        }
+
+        // ── Step 2: Verify OTP ────────────────────────────────────
+        async function verifyOtp() {
+            var inputs   = document.querySelectorAll('.otp-input');
+            var otp      = Array.from(inputs).map(function (i) {
+                return i.value;
+            }).join('');
+            var otpErrEl = document.getElementById('otpError');
+
+            if (otp.length < 5) {
+                otpErrEl.textContent =
+                    'Enter the complete 5-digit OTP.';
+                otpErrEl.classList.add('show');
+                inputs.forEach(function (i) {
+                    if (!i.value) i.classList.add('is-invalid');
+                });
+                return;
+            }
+
+            otpErrEl.classList.remove('show');
+            inputs.forEach(function (i) {
+                i.classList.remove('is-invalid');
+            });
+
+            try {
+                var res  = await fetch('/Account/VerifyOtp', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({
+                        email: document.getElementById('forgotEmail').value.trim(),
+                        otp:   otp
+                    })
+                });
+                var data = await res.json();
+
+                if (data.success) {
+                    stopTimer();
+                    showStep('step3');
+                } else {
+                    otpErrEl.textContent =
+                        data.message || 'Invalid OTP. Please try again.';
+                    otpErrEl.classList.add('show');
+                    inputs.forEach(function (i) {
+                        i.classList.add('is-invalid');
+                    });
+                }
+            } catch (err) {
+                otpErrEl.textContent = 'Network error. Please try again.';
+                otpErrEl.classList.add('show');
+            }
+        }
+
+        // ── Password strength ─────────────────────────────────────
+        document.getElementById('newPassword').addEventListener('input', function () {
+            var val   = this.value;
+            var score = 0;
+            var bar   = document.getElementById('pwdStrengthBar');
+            var text  = document.getElementById('pwdStrengthText');
+
+            if (val.length >= 8)        score++;
+            if (upperRegex.test(val))   score++;
+            if (numberRegex.test(val))  score++;
+            if (specialRegex.test(val)) score++;
+
+            var labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+            var colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#22c55e'];
+            bar.style.width      = (score * 25) + '%';
+            bar.style.background = colors[score] || '#e5e7eb';
+            text.textContent     = labels[score] || '';
+            text.style.color     = colors[score] || '#6b7280';
+        });
+
+        // ── Step 3: Reset Password ────────────────────────────────
+        async function resetPassword() {
+            var newPwd   = document.getElementById('newPassword').value;
+            var conPwd   = document.getElementById('confirmPassword').value;
+            var newPwdEl = document.getElementById('newPassword');
+            var conPwdEl = document.getElementById('confirmPassword');
+            var valid    = true;
+
+            if (!newPwd) {
+                showError(newPwdEl, 'newPasswordError',
+                    'Enter a new password.');
+                valid = false;
+            } else if (newPwd.length < 8) {
+                showError(newPwdEl, 'newPasswordError',
+                    'Password must be at least 8 characters.');
+                valid = false;
+            } else if (!upperRegex.test(newPwd)) {
+                showError(newPwdEl, 'newPasswordError',
+                    'Password must contain at least one uppercase letter.');
+                valid = false;
+            } else if (!numberRegex.test(newPwd)) {
+                showError(newPwdEl, 'newPasswordError',
+                    'Password must contain at least one number.');
+                valid = false;
+            } else if (!specialRegex.test(newPwd)) {
+                showError(newPwdEl, 'newPasswordError',
+                    'Password must contain at least one special character (!@@#$%^&*).');
+                valid = false;
+            } else {
+                clearError(newPwdEl, 'newPasswordError');
+            }
+
+            if (!conPwd) {
+                showError(conPwdEl, 'confirmPasswordError',
+                    'Enter confirm password.');
+                valid = false;
+            } else if (newPwd !== conPwd) {
+                showError(conPwdEl, 'confirmPasswordError',
+                    'Passwords do not match.');
+                valid = false;
+            } else {
+                clearError(conPwdEl, 'confirmPasswordError');
+            }
+
+            if (!valid) return;
+
+            try {
+                var res  = await fetch('/Account/ResetPassword', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({
+                        email:           document.getElementById('forgotEmail')
+                                             .value.trim(),
+                        otp:             Array.from(
+                                             document.querySelectorAll('.otp-input'))
+                                             .map(function (i) { return i.value; })
+                                             .join(''),
+                        newPassword:     newPwd,
+                        confirmPassword: conPwd
+                    })
+                });
+                var data = await res.json();
+
+                if (data.success) {
+                    showStep('step4');
+                } else {
+                    showError(newPwdEl, 'newPasswordError',
+                        data.message || 'Reset failed. Please try again.');
+                }
+            } catch (err) {
+                showError(newPwdEl, 'newPasswordError',
+                    'Network error. Please try again.');
+            }
+        }
+    </script>
+
+</body>
+</html>

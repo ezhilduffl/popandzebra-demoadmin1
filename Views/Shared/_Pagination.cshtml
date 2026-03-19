@@ -1,0 +1,115 @@
+﻿@model PopZebra.Models.PaginationViewModel
+
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex align-items-center justify-content-between mt-4">
+
+        <div class="text-muted small">
+            Showing
+            <strong>@(((Model.PageIndex - 1) * Model.PageSize) + 1)</strong>
+            –
+            <strong>@(Math.Min(Model.PageIndex * Model.PageSize, Model.TotalCount))</strong>
+            of <strong>@Model.TotalCount</strong> records
+        </div>
+
+        <nav>
+            <ul class="pagination pagination-sm mb-0 gap-1">
+
+                <!-- First -->
+                <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                    <a class="page-link rounded"
+                       href="@Model.Url(1)"
+                       title="First">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+
+                <!-- Previous -->
+                <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link rounded"
+                       href="@Model.Url(Model.PageIndex - 1)"
+                       title="Previous">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                <!-- Page numbers -->
+                @{
+                    int start = Math.Max(1, Model.PageIndex - 2);
+                    int end = Math.Min(Model.TotalPages, Model.PageIndex + 2);
+                }
+
+                @if (start > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link rounded" href="@Model.Url(1)">1</a>
+                    </li>
+                    @if (start > 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link rounded">…</span>
+                        </li>
+                    }
+                }
+
+                @for (int p = start; p <= end; p++)
+                {
+                    if (p == Model.PageIndex)
+                    {
+                        <li class="page-item active">
+                            <span class="page-link rounded"
+                                  style="background:var(--brand-accent);
+                                                     border-color:var(--brand-accent);">
+                                @p
+                            </span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link rounded"
+                               href="@Model.Url(p)">@p</a>
+                        </li>
+                    }
+                }
+
+                @if (end < Model.TotalPages)
+                {
+                    @if (end < Model.TotalPages - 1)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link rounded">…</span>
+                        </li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link rounded"
+                           href="@Model.Url(Model.TotalPages)">
+                            @Model.TotalPages
+                        </a>
+                    </li>
+                }
+
+                <!-- Next -->
+                <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                    <a class="page-link rounded"
+                       href="@Model.Url(Model.PageIndex + 1)"
+                       title="Next">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+
+                <!-- Last -->
+                <li class="page-item
+                        @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link rounded"
+                       href="@Model.Url(Model.TotalPages)"
+                       title="Last">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+
+    </div>
+}

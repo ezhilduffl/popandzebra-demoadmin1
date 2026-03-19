@@ -1,0 +1,272 @@
+﻿@model PopZebra.Models.AboutSectionViewModel
+@{
+    ViewData["Title"] = "About - Create";
+    Layout = "_Layout";
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back to List
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+
+        <form method="post"
+              asp-action="Create"
+              enctype="multipart/form-data"
+              id="aboutCreateForm"
+              novalidate>
+            @Html.AntiForgeryToken()
+
+            <!-- Content Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-file-text me-2"></i>Content
+                </div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">
+                            Content <span class="text-danger">*</span>
+                        </label>
+                        <textarea asp-for="Content"
+                                  id="contentEditor"
+                                  class="form-control"
+                                  rows="6"
+                                  placeholder="Enter about page content..."></textarea>
+                        <div class="text-danger small mt-1"
+                             id="contentError"></div>
+                    </div>
+
+                    <!-- Status Switch -->
+                    <div class="d-flex align-items-center gap-3">
+                        <label class="form-label mb-0 fw-semibold">Status</label>
+                        <div class="form-check form-switch mb-0">
+                            <input asp-for="IsActive"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   role="switch"
+                                   id="statusSwitch"
+                                   style="width:2.8em;height:1.4em;cursor:pointer;" />
+                            <label class="ms-1 form-check-label fw-semibold"
+                                   id="statusLabel"
+                                   for="statusSwitch">
+                                Active
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Icons Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-grid me-2"></i>Icon Section
+                    <small class="text-muted ms-2">
+                        (All 5 icons are required)
+                    </small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+
+                        @for (int i = 0; i < Model.Icons.Count; i++)
+                        {
+                            <div class="col-md-6 col-xl-4">
+                                <div class="border rounded-3 p-3 h-100"
+                                     style="background:#f8f9fe;">
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <div class="rounded-circle d-flex align-items-center
+                                                        justify-content-center fw-bold text-white"
+                                             style="width:30px;height:30px;font-size:.8rem;
+                                                        background:var(--brand-accent);">
+                                            @(i + 1)
+                                        </div>
+                                        <span class="fw-semibold">Icon @(i + 1)</span>
+                                    </div>
+
+                                    <!-- Icon Title -->
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Title <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               name="Icons[@i].Title"
+                                               class="form-control form-control-sm"
+                                               placeholder="e.g. Facebook" />
+                                        <div class="text-danger small mt-1"
+                                             id="iconTitleError_@i"></div>
+                                    </div>
+
+                                    <!-- Icon Upload -->
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            Icon Image <span class="text-danger">*</span>
+                                        </label>
+                                        <div class="img-preview-box"
+                                             id="iconPreview_@i"
+                                             onclick="document.getElementById('iconFile_@i').click()"
+                                             style="height:100px;">
+                                            <div class="placeholder-text">
+                                                <i class="bi bi-image fs-4 d-block text-muted"></i>
+                                                <small>Click to upload</small><br />
+                                                <small class="text-muted">
+                                                    JPG, PNG, GIF — 3MB
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <input type="file"
+                                               id="iconFile_@i"
+                                               name="Icons[@i].IconFile"
+                                               accept=".jpg,.jpeg,.png,.gif"
+                                               class="d-none"
+                                               data-index="@i"
+                                               onchange="previewIcon(this, @i)" />
+                                        <div class="text-danger small mt-1"
+                                             id="iconFileError_@i"></div>
+                                    </div>
+
+                                    <!-- Icon Link -->
+                                    <div class="mb-1">
+                                        <label class="form-label">
+                                            Link URL <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text"
+                                               name="Icons[@i].LinkUrl"
+                                               class="form-control form-control-sm"
+                                               placeholder="https://..." />
+                                        <div class="text-danger small mt-1"
+                                             id="iconLinkError_@i"></div>
+                                    </div>
+
+                                    <input type="hidden"
+                                           name="Icons[@i].SortOrder"
+                                           value="@(i + 1)" />
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary px-5">
+                    <i class="bi bi-check-circle me-1"></i>Save
+                </button>
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary px-4">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var maxSize     = 3 * 1024 * 1024;
+        var allowedExts = new RegExp('\\.(jpg|jpeg|png|gif)$', 'i');
+
+        // ── Status switch label ───────────────────────────────
+        document.getElementById('statusSwitch').addEventListener('change', function () {
+            document.getElementById('statusLabel').textContent =
+                this.checked ? 'Active' : 'Inactive';
+        });
+
+        // ── Real-time clear content error ─────────────────────
+        document.getElementById('contentEditor').addEventListener('input', function () {
+            if (this.value.trim()) {
+                document.getElementById('contentError').textContent = '';
+                this.classList.remove('is-invalid');
+            }
+        });
+
+        function previewIcon(input, idx) {
+            var file  = input.files[0];
+            var box   = document.getElementById('iconPreview_' + idx);
+            var errEl = document.getElementById('iconFileError_' + idx);
+            errEl.textContent = '';
+
+            if (!file) return;
+
+            if (!allowedExts.test(file.name)) {
+                errEl.textContent = 'Only JPG, PNG, GIF allowed.';
+                input.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                errEl.textContent = 'Max file size is 3MB.';
+                input.value = '';
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                box.innerHTML =
+                    '<img src="' + e.target.result + '" ' +
+                    'style="width:100%;height:100%;object-fit:contain;' +
+                    'border-radius:8px;padding:4px;" />';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        document.getElementById('aboutCreateForm')
+            .addEventListener('submit', function (e) {
+            var valid = true;
+
+            // ── Content validation ────────────────────────────
+            var contentEl = document.getElementById('contentEditor');
+            var content   = contentEl.value.trim();
+            if (!content) {
+                document.getElementById('contentError').textContent =
+                    'Please enter the content.';
+                contentEl.classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('contentError').textContent = '';
+                contentEl.classList.remove('is-invalid');
+            }
+
+            // ── All 5 icons validation ────────────────────────
+            for (var i = 0; i < 5; i++) {
+                var titleEl = document.querySelector(
+                    'input[name="Icons[' + i + '].Title"]');
+                var fileEl  = document.getElementById('iconFile_' + i);
+                var linkEl  = document.querySelector(
+                    'input[name="Icons[' + i + '].LinkUrl"]');
+
+                // Title
+                if (!titleEl || !titleEl.value.trim()) {
+                    document.getElementById('iconTitleError_' + i).textContent =
+                        'Please enter the title for Icon ' + (i + 1) + '.';
+                    valid = false;
+                } else {
+                    document.getElementById('iconTitleError_' + i).textContent = '';
+                }
+
+                // Image
+                if (!fileEl || !fileEl.files || fileEl.files.length === 0) {
+                    document.getElementById('iconFileError_' + i).textContent =
+                        'Please upload an image for Icon ' + (i + 1) + '.';
+                    valid = false;
+                } else {
+                    document.getElementById('iconFileError_' + i).textContent = '';
+                }
+
+                // Link URL
+                if (!linkEl || !linkEl.value.trim()) {
+                    document.getElementById('iconLinkError_' + i).textContent =
+                        'Please enter the link URL for Icon ' + (i + 1) + '.';
+                    valid = false;
+                } else {
+                    document.getElementById('iconLinkError_' + i).textContent = '';
+                }
+            }
+
+            if (!valid) e.preventDefault();
+        });
+    </script>
+}
